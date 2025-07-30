@@ -1,10 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Eye, Download, Trash } from "lucide-react";
+import { ArrowLeft, Plus, Eye, Download, Trash, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
+  };
+
   // Mock invoice data
   const invoices = [
     {
@@ -30,26 +43,32 @@ const Dashboard = () => {
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link to="/">
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                </Link>
+                <div>
+                  <h1 className="text-2xl font-semibold">Dashboard</h1>
+                  <p className="text-muted-foreground">Welcome back, {user?.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Link to="/create">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Invoice
+                  </Button>
+                </Link>
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-semibold">Dashboard</h1>
-                <p className="text-muted-foreground">Manage your invoices</p>
               </div>
             </div>
-            <Link to="/create">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Invoice
-              </Button>
-            </Link>
-          </div>
         </div>
       </div>
 

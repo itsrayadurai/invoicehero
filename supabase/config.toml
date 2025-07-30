@@ -1,1 +1,7 @@
 project_id = "kfgfkmzbefbrvyanxayu"
+
+[functions.process-file]
+verify_jwt = true
+
+[functions.generate-pdf]
+verify_jwt = false
