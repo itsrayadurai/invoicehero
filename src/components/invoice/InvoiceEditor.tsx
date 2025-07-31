@@ -141,6 +141,16 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
             />
           </div>
           <div>
+            <Label htmlFor="client-email">Client Email</Label>
+            <Input
+              id="client-email"
+              type="email"
+              value={invoiceData.clientEmail || ""}
+              onChange={(e) => onUpdate({ clientEmail: e.target.value })}
+              placeholder="client@company.com"
+            />
+          </div>
+          <div>
             <Label htmlFor="client-address">Client Address</Label>
             <Textarea
               id="client-address"
