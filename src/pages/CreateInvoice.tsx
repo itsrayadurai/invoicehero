@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Download } from "lucide-react";
 import { Link } from "react-router-dom";
-import { InvoiceEditor } from "@/components/invoice/InvoiceEditor";
+import { MobileInvoiceCreator } from "@/components/invoice/MobileInvoiceCreator";
 import { InvoicePreview } from "@/components/invoice/InvoicePreview";
-import { FileUpload } from "@/components/invoice/FileUpload";
+import { AuthPrompt } from "@/components/auth/AuthPrompt";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -37,6 +38,7 @@ export interface LineItem {
 
 const CreateInvoice = () => {
   const { user, session } = useAuth();
+  const isMobile = useIsMobile();
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
     companyName: "",
     companyAddress: "",
@@ -53,8 +55,10 @@ const CreateInvoice = () => {
     total: 0
   });
 
-  const [showFileUpload, setShowFileUpload] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [authPromptFeature, setAuthPromptFeature] = useState("");
 
   const handleInvoiceUpdate = (data: Partial<InvoiceData>) => {
     setInvoiceData(prev => ({ ...prev, ...data }));
@@ -211,19 +215,16 @@ const CreateInvoice = () => {
   };
 
   const handleEmailInvoice = async () => {
+    if (!user || !session) {
+      setAuthPromptFeature("email");
+      setShowAuthPrompt(true);
+      return;
+    }
+
     if (!invoiceData.clientEmail) {
       toast({
         title: "Missing email",
         description: "Please enter the client's email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!user || !session) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to send emails",
         variant: "destructive",
       });
       return;
@@ -288,9 +289,65 @@ const CreateInvoice = () => {
     }
   };
 
+  // Mobile-first responsive design
+  if (isMobile) {
+    return (
+      <>
+        <div className="min-h-screen bg-background">
+          {/* Mobile Header */}
+          <div className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Link to="/">
+                  <Button variant="ghost" size="sm">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <h1 className="text-lg font-semibold">Create Invoice</h1>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+              >
+                {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Content */}
+          {showPreview ? (
+            <div className="p-4 pb-24">
+              <Card className="p-4">
+                <InvoicePreview invoiceData={invoiceData} />
+              </Card>
+            </div>
+          ) : (
+            <MobileInvoiceCreator
+              invoiceData={invoiceData}
+              onUpdate={handleInvoiceUpdate}
+              onSave={handleSaveInvoice}
+              onDownload={handleDownloadPDF}
+              onEmail={handleEmailInvoice}
+              isLoading={isLoading}
+            />
+          )}
+        </div>
+
+        {/* Auth Prompt */}
+        <AuthPrompt
+          isOpen={showAuthPrompt}
+          onClose={() => setShowAuthPrompt(false)}
+          feature={authPromptFeature}
+        />
+      </>
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Desktop Header */}
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -304,14 +361,6 @@ const CreateInvoice = () => {
               <h1 className="text-2xl font-semibold">Create Invoice</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowFileUpload(true)}
-                className="hidden sm:flex"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload File
-              </Button>
               <Button 
                 variant="outline" 
                 onClick={handleEmailInvoice}
@@ -323,6 +372,7 @@ const CreateInvoice = () => {
               <Button 
                 onClick={handleDownloadPDF}
                 disabled={isLoading}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
               >
                 <Download className="h-4 w-4 mr-2" />
                 {isLoading ? "Generating..." : "Download PDF"}
@@ -332,34 +382,34 @@ const CreateInvoice = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Desktop Main Content */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Editor Panel */}
+          {/* Desktop Editor */}
           <Card className="p-6">
-            <InvoiceEditor 
-              invoiceData={invoiceData} 
-              onUpdate={handleInvoiceUpdate} 
+            <MobileInvoiceCreator
+              invoiceData={invoiceData}
+              onUpdate={handleInvoiceUpdate}
+              onSave={handleSaveInvoice}
+              onDownload={handleDownloadPDF}
+              onEmail={handleEmailInvoice}
+              isLoading={isLoading}
             />
           </Card>
 
-          {/* Preview Panel */}
+          {/* Desktop Preview */}
           <Card className="p-6">
             <InvoicePreview invoiceData={invoiceData} />
           </Card>
         </div>
       </div>
 
-      {/* File Upload Modal */}
-      {showFileUpload && (
-        <FileUpload
-          onClose={() => setShowFileUpload(false)}
-          onDataExtracted={(data) => {
-            handleInvoiceUpdate(data);
-            setShowFileUpload(false);
-          }}
-        />
-      )}
+      {/* Auth Prompt */}
+      <AuthPrompt
+        isOpen={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        feature={authPromptFeature}
+      />
     </div>
   );
 };
