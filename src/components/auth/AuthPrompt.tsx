@@ -27,12 +27,12 @@ interface AuthPromptProps {
   feature?: string;
 }
 
-export const AuthPrompt = ({ isOpen, onClose, feature = "premium" }: AuthPromptProps) => {
-  const premiumFeatures = [
+export const AuthPrompt = ({ isOpen, onClose, feature = "advanced" }: AuthPromptProps) => {
+  const advancedFeatures = [
     {
       icon: <FileText className="h-5 w-5" />,
-      title: "Premium Templates",
-      description: "Access beautiful, professional invoice templates"
+      title: "Beautiful Templates",
+      description: "Access professional, customizable invoice templates"
     },
     {
       icon: <Mail className="h-5 w-5" />,
@@ -57,7 +57,7 @@ export const AuthPrompt = ({ isOpen, onClose, feature = "premium" }: AuthPromptP
         <BottomSheetHeader>
           <div className="flex items-center justify-between">
             <BottomSheetTitle className="text-2xl">
-              Unlock Premium Features
+              Unlock Advanced Features
             </BottomSheetTitle>
             <BottomSheetClose asChild>
               <Button variant="ghost" size="sm" onClick={onClose}>
@@ -76,10 +76,10 @@ export const AuthPrompt = ({ isOpen, onClose, feature = "premium" }: AuthPromptP
             <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-center gap-3 mb-2">
                 <Shield className="h-5 w-5 text-primary" />
-                <Badge className="bg-primary/10 text-primary">Premium Feature</Badge>
+                <Badge className="bg-primary/10 text-primary">Advanced Feature</Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                You're trying to access a premium feature. Sign in to unlock it!
+                You're trying to access an advanced feature. Sign in to unlock it!
               </p>
             </Card>
           )}
@@ -89,7 +89,7 @@ export const AuthPrompt = ({ isOpen, onClose, feature = "premium" }: AuthPromptP
             <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
               What you'll get:
             </h4>
-            {premiumFeatures.map((feature, index) => (
+            {advancedFeatures.map((feature, index) => (
               <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
                 <div className="text-primary mt-0.5">{feature.icon}</div>
                 <div>

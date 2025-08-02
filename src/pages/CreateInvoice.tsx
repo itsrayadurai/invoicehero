@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Eye, EyeOff, Mail, Download } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Download, FileText, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MobileInvoiceCreator } from "@/components/invoice/MobileInvoiceCreator";
 import { InvoicePreview } from "@/components/invoice/InvoicePreview";
@@ -303,7 +303,12 @@ const CreateInvoice = () => {
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                 </Link>
-                <h1 className="text-lg font-semibold">Create Invoice</h1>
+                <div className="flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-primary to-accent p-1.5 rounded-lg">
+                    <FileText className="h-4 w-4 text-white" />
+                  </div>
+                  <h1 className="text-lg font-semibold">EaseInvoice</h1>
+                </div>
               </div>
               <Button
                 variant="ghost"
@@ -358,13 +363,21 @@ const CreateInvoice = () => {
                   Back
                 </Button>
               </Link>
-              <h1 className="text-2xl font-semibold">Create Invoice</h1>
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-primary to-accent p-2 rounded-lg">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-semibold">EaseInvoice</h1>
+                  <p className="text-sm text-muted-foreground">Create professional invoices in seconds</p>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
                 onClick={handleEmailInvoice}
-                disabled={isLoading}
+                disabled={isLoading || !user}
               >
                 <Mail className="h-4 w-4 mr-2" />
                 {isLoading ? "Sending..." : "Email"}

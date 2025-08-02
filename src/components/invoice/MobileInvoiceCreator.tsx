@@ -232,7 +232,6 @@ export const MobileInvoiceCreator = ({
               <div>
                 <label className="text-sm font-medium mb-2 block">
                   Client Email
-                  {!user && <Badge className="ml-2 text-xs bg-primary/10 text-primary">Premium</Badge>}
                 </label>
                 <input
                   type="email"
@@ -240,8 +239,6 @@ export const MobileInvoiceCreator = ({
                   onChange={(e) => onUpdate({ clientEmail: e.target.value })}
                   placeholder="client@company.com"
                   className="w-full p-3 border rounded-lg text-base"
-                  disabled={!user}
-                  onClick={() => !user && showAuthPrompt("email")}
                 />
               </div>
               <div>

@@ -184,12 +184,12 @@ const Index = () => {
                 Create Invoice Now
               </Button>
             </Link>
-            <Link to="/templates" className="block">
-              <Button variant="outline" size="lg" className="w-full text-base px-6 py-4">
-                <Palette className="h-5 w-5 mr-2" />
-                View Premium Templates
-              </Button>
-            </Link>
+              <Link to="/templates" className="block">
+                <Button variant="outline" size="lg" className="w-full text-base px-6 py-4">
+                  <Palette className="h-5 w-5 mr-2" />
+                  View Templates
+                </Button>
+              </Link>
           </div>
 
           {/* Stats */}
@@ -226,7 +226,7 @@ const Index = () => {
           {/* Section Header */}
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Free vs Premium Features
+              Free vs Advanced Features
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Start for free, upgrade when you need advanced features
@@ -245,7 +245,7 @@ const Index = () => {
                     </Badge>
                   ) : (
                     <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
-                      PREMIUM
+                      ADVANCED
                     </Badge>
                   )}
                 </div>
@@ -270,10 +270,10 @@ const Index = () => {
             ))}
           </div>
 
-          {/* CTA for Premium Features */}
+          {/* CTA for Advanced Features */}
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">
-              Want access to premium templates, email sending, and recurring invoices?
+              Want access to beautiful templates, email sending, and recurring invoices?
             </p>
             <Link to="/auth">
               <Button variant="outline" size="lg" className="text-base px-8 py-4">
@@ -306,7 +306,7 @@ const Index = () => {
               </Link>
               <Link to="/auth" className="flex-1">
                 <Button variant="outline" size="lg" className="w-full text-base px-6 py-6">
-                  Unlock Premium
+                  Unlock Advanced
                 </Button>
               </Link>
             </div>
