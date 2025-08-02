@@ -77,10 +77,10 @@ export const InvoicePreview = ({ invoiceData }: InvoicePreviewProps) => {
               {invoiceData.lineItems.length > 0 ? (
                 invoiceData.lineItems.map((item) => (
                   <tr key={item.id} className="border-b border-gray-200">
-                    <td className="py-3 text-gray-800">{item.name || "Item description"}</td>
+                    <td className="py-3 text-gray-800">{item.description || "Item description"}</td>
                     <td className="py-3 text-center text-gray-600">{item.quantity}</td>
-                    <td className="py-3 text-right text-gray-600">${item.rate.toFixed(2)}</td>
-                    <td className="py-3 text-right font-medium text-gray-800">${item.total.toFixed(2)}</td>
+                    <td className="py-3 text-right text-gray-600">${item.price.toFixed(2)}</td>
+                    <td className="py-3 text-right font-medium text-gray-800">${item.amount.toFixed(2)}</td>
                   </tr>
                 ))
               ) : (
@@ -104,7 +104,7 @@ export const InvoicePreview = ({ invoiceData }: InvoicePreviewProps) => {
               </div>
               <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">Tax (10%):</span>
-                <span className="font-medium">${invoiceData.tax.toFixed(2)}</span>
+                <span className="font-medium">${invoiceData.salesTax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between py-3 border-b-2 border-gray-300">
                 <span className="font-semibold text-lg text-gray-800">Total:</span>

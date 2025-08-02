@@ -18,10 +18,10 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
   const addLineItem = () => {
     const newItem: LineItem = {
       id: Date.now().toString(),
-      name: "",
+      description: "",
       quantity: 1,
-      rate: 0,
-      total: 0
+      price: 0,
+      amount: 0
     };
     onUpdate({
       lineItems: [...invoiceData.lineItems, newItem]
@@ -32,36 +32,36 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
     const updatedItems = invoiceData.lineItems.map(item => {
       if (item.id === id) {
         const updated = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'rate') {
-          updated.total = updated.quantity * updated.rate;
+        if (field === 'quantity' || field === 'price') {
+          updated.amount = updated.quantity * updated.price;
         }
         return updated;
       }
       return item;
     });
     
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+      const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
     const tax = subtotal * 0.1; // 10% tax
     const total = subtotal + tax;
     
     onUpdate({
       lineItems: updatedItems,
       subtotal,
-      tax,
+      salesTax: tax,
       total
     });
   };
 
   const removeLineItem = (id: string) => {
     const updatedItems = invoiceData.lineItems.filter(item => item.id !== id);
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+    const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
     
     onUpdate({
       lineItems: updatedItems,
       subtotal,
-      tax,
+      salesTax: tax,
       total
     });
   };
@@ -218,11 +218,11 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
           {invoiceData.lineItems.map((item) => (
             <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
               <div className="col-span-5">
-                <Input
-                  placeholder="Item name"
-                  value={item.name}
-                  onChange={(e) => updateLineItem(item.id, 'name', e.target.value)}
-                />
+                  <Input
+                    placeholder="Item description"
+                    value={item.description}
+                    onChange={(e) => updateLineItem(item.id, 'description', e.target.value)}
+                  />
               </div>
               <div className="col-span-2">
                 <Input
@@ -233,20 +233,20 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
                 />
               </div>
               <div className="col-span-2">
-                <Input
-                  type="number"
-                  placeholder="Rate"
-                  value={item.rate}
-                  onChange={(e) => updateLineItem(item.id, 'rate', Number(e.target.value))}
-                />
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    value={item.price}
+                    onChange={(e) => updateLineItem(item.id, 'price', Number(e.target.value))}
+                  />
               </div>
               <div className="col-span-2">
-                <Input
-                  placeholder="Total"
-                  value={item.total.toFixed(2)}
-                  readOnly
-                  className="bg-muted"
-                />
+                  <Input
+                    placeholder="Amount"
+                    value={item.amount.toFixed(2)}
+                    readOnly
+                    className="bg-muted"
+                  />
               </div>
               <div className="col-span-1">
                 <Button

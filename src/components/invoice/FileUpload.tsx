@@ -110,21 +110,21 @@ export const FileUpload = ({ onClose, onDataExtracted }: FileUploadProps) => {
         lineItems: [
           {
             id: Date.now().toString(),
-            name: "Web Development Services",
+            description: "Web Development Services",
             quantity: 40,
-            rate: 125,
-            total: 5000
+            price: 125,
+            amount: 5000
           },
           {
             id: (Date.now() + 1).toString(),
-            name: "UI/UX Design",
+            description: "UI/UX Design",
             quantity: 20,
-            rate: 100,
-            total: 2000
+            price: 100,
+            amount: 2000
           }
         ],
         subtotal: 7000,
-        tax: 700,
+        salesTax: 700,
         total: 7700
       };
 

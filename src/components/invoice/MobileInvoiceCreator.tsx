@@ -57,10 +57,10 @@ export const MobileInvoiceCreator = ({
   const addLineItem = () => {
     const newItem = {
       id: Date.now().toString(),
-      name: "",
+      description: "",
       quantity: 1,
-      rate: 0,
-      total: 0
+      price: 0,
+      amount: 0
     };
     onUpdate({
       lineItems: [...invoiceData.lineItems, newItem]
@@ -71,36 +71,36 @@ export const MobileInvoiceCreator = ({
     const updatedItems = invoiceData.lineItems.map(item => {
       if (item.id === id) {
         const updated = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'rate') {
-          updated.total = updated.quantity * updated.rate;
+        if (field === 'quantity' || field === 'price') {
+          updated.amount = updated.quantity * updated.price;
         }
         return updated;
       }
       return item;
     });
     
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+      const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
     
     onUpdate({
       lineItems: updatedItems,
       subtotal,
-      tax,
+      salesTax: tax,
       total
     });
   };
 
   const removeLineItem = (id: string) => {
     const updatedItems = invoiceData.lineItems.filter(item => item.id !== id);
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+    const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
     
     onUpdate({
       lineItems: updatedItems,
       subtotal,
-      tax,
+      salesTax: tax,
       total
     });
   };
@@ -359,8 +359,8 @@ export const MobileInvoiceCreator = ({
                       <input
                         type="text"
                         placeholder="Item description"
-                        value={item.name}
-                        onChange={(e) => updateLineItem(item.id, 'name', e.target.value)}
+                        value={item.description}
+                        onChange={(e) => updateLineItem(item.id, 'description', e.target.value)}
                         className="w-full p-3 border rounded-lg text-base"
                       />
                       
@@ -379,8 +379,8 @@ export const MobileInvoiceCreator = ({
                           <label className="text-xs text-muted-foreground">Rate</label>
                           <input
                             type="number"
-                            value={item.rate}
-                            onChange={(e) => updateLineItem(item.id, 'rate', Number(e.target.value))}
+                            value={item.price}
+                            onChange={(e) => updateLineItem(item.id, 'price', Number(e.target.value))}
                             className="w-full p-2 border rounded text-base"
                             min="0"
                             step="0.01"
@@ -389,7 +389,7 @@ export const MobileInvoiceCreator = ({
                         <div>
                           <label className="text-xs text-muted-foreground">Total</label>
                           <div className="p-2 bg-muted rounded text-base font-medium">
-                            ${item.total.toFixed(2)}
+                            ${item.amount.toFixed(2)}
                           </div>
                         </div>
                       </div>
@@ -406,7 +406,7 @@ export const MobileInvoiceCreator = ({
                 </div>
                 <div className="flex justify-between">
                   <span>Tax (10%):</span>
-                  <span>${invoiceData.tax.toFixed(2)}</span>
+                  <span>${invoiceData.salesTax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
