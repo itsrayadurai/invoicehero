@@ -84,13 +84,29 @@ export const FileUpload = ({ onClose, onDataExtracted }: FileUploadProps) => {
     try {
       setUploading(true);
       
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('file', file);
+      // Convert file to base64
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]); // Remove data:type;base64, prefix
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Get current user ID (or generate a temporary one for guests)
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || `guest_${Date.now()}`;
 
       // Call the process-file edge function
       const response = await supabase.functions.invoke('process-file', {
-        body: formData,
+        body: {
+          fileName: file.name,
+          fileType: file.type,
+          fileContent: fileContent,
+          userId: userId
+        }
       });
 
       if (response.error) throw response.error;
@@ -98,38 +114,50 @@ export const FileUpload = ({ onClose, onDataExtracted }: FileUploadProps) => {
       setUploading(false);
       setExtracting(true);
 
-      // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for the actual extraction to complete
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Mock extracted data - in real implementation, this would come from the edge function
-      const mockExtractedData: Partial<InvoiceData> = {
-        companyName: "ABC Tech Solutions",
-        companyAddress: "123 Main Street\nSan Francisco, CA 94105",
-        clientName: "XYZ Corporation",
-        clientAddress: "456 Business Ave\nNew York, NY 10001",
-        lineItems: [
-          {
-            id: Date.now().toString(),
-            description: "Web Development Services",
-            quantity: 40,
-            price: 125,
-            amount: 5000
-          },
-          {
-            id: (Date.now() + 1).toString(),
-            description: "UI/UX Design",
-            quantity: 20,
-            price: 100,
-            amount: 2000
-          }
-        ],
-        subtotal: 7000,
-        salesTax: 700,
-        total: 7700
-      };
+      const { data: extractionData } = response;
+      console.log('Extracted data:', extractionData);
+
+      // Transform extracted data to match our InvoiceData structure
+      const transformedData: Partial<InvoiceData> = {};
+
+      if (extractionData?.extractedData) {
+        const extracted = extractionData.extractedData;
+
+        // Map client info
+        if (extracted.clientInfo) {
+          transformedData.clientName = extracted.clientInfo.name || "";
+          transformedData.clientAddress = extracted.clientInfo.address || "";
+        }
+
+        // Map invoice info
+        if (extracted.invoiceInfo) {
+          transformedData.invoiceNumber = extracted.invoiceInfo.invoiceNumber || "";
+          transformedData.poNumber = extracted.invoiceInfo.poNumber || "";
+        }
+
+        // Map line items
+        if (extracted.lineItems && extracted.lineItems.length > 0) {
+          transformedData.lineItems = extracted.lineItems.map((item: any, index: number) => ({
+            id: (Date.now() + index).toString(),
+            description: item.name || item.description || "",
+            quantity: item.quantity || 1,
+            price: item.rate || item.price || 0,
+            amount: (item.quantity || 1) * (item.rate || item.price || 0)
+          }));
+
+          // Calculate totals
+          const subtotal = transformedData.lineItems.reduce((sum, item) => sum + item.amount, 0);
+          transformedData.subtotal = subtotal;
+          transformedData.salesTax = subtotal * 0.1; // 10% default tax
+          transformedData.total = subtotal + transformedData.salesTax;
+        }
+      }
 
       setExtracting(false);
-      onDataExtracted(mockExtractedData);
+      onDataExtracted(transformedData);
 
       toast({
         title: "Data extracted successfully!",
@@ -142,7 +170,7 @@ export const FileUpload = ({ onClose, onDataExtracted }: FileUploadProps) => {
       setExtracting(false);
       toast({
         title: "Processing failed",
-        description: error.message || "Failed to process file",
+        description: error.message || "Failed to process file. Make sure OpenAI API key is configured.",
         variant: "destructive",
       });
     }
