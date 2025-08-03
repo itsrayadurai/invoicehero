@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2, Upload, X } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { InvoiceData, LineItem } from "@/pages/CreateInvoice";
 
 interface InvoiceEditorProps {
@@ -66,12 +68,52 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
     });
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setLogoFile(file);
-      const url = URL.createObjectURL(file);
-      onUpdate({ companyLogo: url });
+      try {
+        // Create a unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `logo_${Date.now()}.${fileExt}`;
+        
+        // Upload to Supabase storage
+        const { data, error } = await supabase.storage
+          .from('invoice-logos')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload logo. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Get the public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('invoice-logos')
+          .getPublicUrl(fileName);
+
+        setLogoFile(file);
+        onUpdate({ companyLogo: publicUrl });
+        
+        toast({
+          title: "Logo uploaded!",
+          description: "Your company logo has been uploaded successfully.",
+        });
+      } catch (error) {
+        console.error('Logo upload error:', error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload logo. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -96,12 +138,27 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
               <Button
                 variant="outline"
                 onClick={() => document.getElementById('company-logo')?.click()}
+                className="flex items-center gap-2"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Logo
+                <Upload className="h-4 w-4" />
+                {invoiceData.companyLogo ? 'Change Logo' : 'Upload Logo'}
               </Button>
               {invoiceData.companyLogo && (
-                <img src={invoiceData.companyLogo} alt="Logo" className="h-8 w-8 object-contain" />
+                <div className="flex items-center gap-2">
+                  <img 
+                    src={invoiceData.companyLogo} 
+                    alt="Company Logo" 
+                    className="h-12 w-12 object-contain border rounded-lg p-1" 
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onUpdate({ companyLogo: "" })}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
             </div>
           </div>
