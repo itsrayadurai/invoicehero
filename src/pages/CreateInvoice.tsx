@@ -48,6 +48,18 @@ export interface InvoiceData {
   showDiscount: boolean;
   shipTo: boolean;
   shipToAddress: string;
+  // Bank details
+  bankName: string;
+  accountNumber: string;
+  routingNumber: string;
+  swiftCode: string;
+  iban: string;
+  // Template and advanced styling
+  template: string;
+  logoPosition: string;
+  showBankDetails: boolean;
+  paymentTerms: string;
+  discountType: string; // percentage or fixed
 }
 
 export interface LineItem {
@@ -87,7 +99,7 @@ const CreateInvoice = () => {
     notes: "",
     primaryColor: "#6366f1",
     backgroundColor: "#ffffff",
-    font: "Avenir",
+    font: "Inter",
     currency: "USD",
     taxRate: 10,
     showSubtotal: true,
@@ -96,7 +108,19 @@ const CreateInvoice = () => {
     showShipping: false,
     showDiscount: false,
     shipTo: false,
-    shipToAddress: ""
+    shipToAddress: "",
+    // Bank details
+    bankName: "",
+    accountNumber: "",
+    routingNumber: "",
+    swiftCode: "",
+    iban: "",
+    // Template and advanced styling
+    template: "modern",
+    logoPosition: "left",
+    showBankDetails: false,
+    paymentTerms: "Net 30",
+    discountType: "percentage"
   });
 
   const [isLoading, setIsLoading] = useState(false);

@@ -4,7 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, Upload, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Plus, Trash2, Upload, X, Palette, CreditCard, Settings } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceData, LineItem } from "@/pages/CreateInvoice";
@@ -316,6 +319,285 @@ export const InvoiceEditor = ({ invoiceData, onUpdate }: InvoiceEditorProps) => 
               </div>
             </div>
           ))}
+        </div>
+      </Card>
+
+      {/* Style & Customization */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Palette className="h-4 w-4" />
+          <h3 className="font-semibold">Style & Customization</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="template">Template</Label>
+            <Select value={invoiceData.template} onValueChange={(value) => onUpdate({ template: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="modern">Modern</SelectItem>
+                <SelectItem value="classic">Classic</SelectItem>
+                <SelectItem value="minimal">Minimal</SelectItem>
+                <SelectItem value="professional">Professional</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="font">Font</Label>
+            <Select value={invoiceData.font} onValueChange={(value) => onUpdate({ font: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Inter">Inter</SelectItem>
+                <SelectItem value="Roboto">Roboto</SelectItem>
+                <SelectItem value="Open Sans">Open Sans</SelectItem>
+                <SelectItem value="Lato">Lato</SelectItem>
+                <SelectItem value="Merriweather">Merriweather</SelectItem>
+                <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="primary-color">Primary Color</Label>
+            <Input
+              id="primary-color"
+              type="color"
+              value={invoiceData.primaryColor}
+              onChange={(e) => onUpdate({ primaryColor: e.target.value })}
+              className="h-10"
+            />
+          </div>
+          <div>
+            <Label htmlFor="logo-position">Logo Position</Label>
+            <Select value={invoiceData.logoPosition} onValueChange={(value) => onUpdate({ logoPosition: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="center">Center</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Currency & Tax Settings */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <CreditCard className="h-4 w-4" />
+          <h3 className="font-semibold">Currency & Tax Settings</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="currency">Currency</Label>
+            <Select value={invoiceData.currency} onValueChange={(value) => onUpdate({ currency: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD ($)</SelectItem>
+                <SelectItem value="EUR">EUR (€)</SelectItem>
+                <SelectItem value="GBP">GBP (£)</SelectItem>
+                <SelectItem value="CAD">CAD (C$)</SelectItem>
+                <SelectItem value="AUD">AUD (A$)</SelectItem>
+                <SelectItem value="JPY">JPY (¥)</SelectItem>
+                <SelectItem value="INR">INR (₹)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="tax-rate">Tax Rate (%)</Label>
+            <Input
+              id="tax-rate"
+              type="number"
+              value={invoiceData.taxRate}
+              onChange={(e) => onUpdate({ taxRate: Number(e.target.value) })}
+              placeholder="10"
+            />
+          </div>
+          <div>
+            <Label htmlFor="discount-type">Discount Type</Label>
+            <Select value={invoiceData.discountType} onValueChange={(value) => onUpdate({ discountType: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="percentage">Percentage (%)</SelectItem>
+                <SelectItem value="fixed">Fixed Amount</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="payment-terms">Payment Terms</Label>
+            <Select value={invoiceData.paymentTerms} onValueChange={(value) => onUpdate({ paymentTerms: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
+                <SelectItem value="Net 15">Net 15</SelectItem>
+                <SelectItem value="Net 30">Net 30</SelectItem>
+                <SelectItem value="Net 45">Net 45</SelectItem>
+                <SelectItem value="Net 60">Net 60</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Bank Details */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <CreditCard className="h-4 w-4" />
+          <h3 className="font-semibold">Bank Details</h3>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-bank-details"
+              checked={invoiceData.showBankDetails}
+              onCheckedChange={(checked) => onUpdate({ showBankDetails: checked })}
+            />
+            <Label htmlFor="show-bank-details">Show bank details on invoice</Label>
+          </div>
+          {invoiceData.showBankDetails && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bank-name">Bank Name</Label>
+                <Input
+                  id="bank-name"
+                  value={invoiceData.bankName}
+                  onChange={(e) => onUpdate({ bankName: e.target.value })}
+                  placeholder="Your Bank Name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="account-number">Account Number</Label>
+                <Input
+                  id="account-number"
+                  value={invoiceData.accountNumber}
+                  onChange={(e) => onUpdate({ accountNumber: e.target.value })}
+                  placeholder="Account Number"
+                />
+              </div>
+              <div>
+                <Label htmlFor="routing-number">Routing Number</Label>
+                <Input
+                  id="routing-number"
+                  value={invoiceData.routingNumber}
+                  onChange={(e) => onUpdate({ routingNumber: e.target.value })}
+                  placeholder="Routing Number"
+                />
+              </div>
+              <div>
+                <Label htmlFor="swift-code">SWIFT Code</Label>
+                <Input
+                  id="swift-code"
+                  value={invoiceData.swiftCode}
+                  onChange={(e) => onUpdate({ swiftCode: e.target.value })}
+                  placeholder="SWIFT Code"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="iban">IBAN</Label>
+                <Input
+                  id="iban"
+                  value={invoiceData.iban}
+                  onChange={(e) => onUpdate({ iban: e.target.value })}
+                  placeholder="International Bank Account Number"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Display Options */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Settings className="h-4 w-4" />
+          <h3 className="font-semibold">Display Options</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-subtotal"
+              checked={invoiceData.showSubtotal}
+              onCheckedChange={(checked) => onUpdate({ showSubtotal: checked })}
+            />
+            <Label htmlFor="show-subtotal">Show Subtotal</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-sales-tax"
+              checked={invoiceData.showSalesTax}
+              onCheckedChange={(checked) => onUpdate({ showSalesTax: checked })}
+            />
+            <Label htmlFor="show-sales-tax">Show Sales Tax</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-other-tax"
+              checked={invoiceData.showOtherTax}
+              onCheckedChange={(checked) => onUpdate({ showOtherTax: checked })}
+            />
+            <Label htmlFor="show-other-tax">Show Other Tax</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-shipping"
+              checked={invoiceData.showShipping}
+              onCheckedChange={(checked) => onUpdate({ showShipping: checked })}
+            />
+            <Label htmlFor="show-shipping">Show Shipping</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-discount"
+              checked={invoiceData.showDiscount}
+              onCheckedChange={(checked) => onUpdate({ showDiscount: checked })}
+            />
+            <Label htmlFor="show-discount">Show Discount</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="ship-to"
+              checked={invoiceData.shipTo}
+              onCheckedChange={(checked) => onUpdate({ shipTo: checked })}
+            />
+            <Label htmlFor="ship-to">Ship To Address</Label>
+          </div>
+        </div>
+        {invoiceData.shipTo && (
+          <div className="mt-4">
+            <Label htmlFor="ship-to-address">Ship To Address</Label>
+            <Textarea
+              id="ship-to-address"
+              value={invoiceData.shipToAddress}
+              onChange={(e) => onUpdate({ shipToAddress: e.target.value })}
+              placeholder="Shipping address..."
+              rows={3}
+            />
+          </div>
+        )}
+      </Card>
+
+      {/* Notes & Terms */}
+      <Card className="p-4">
+        <h3 className="font-semibold mb-3">Notes & Terms</h3>
+        <div>
+          <Label htmlFor="notes">Additional Notes</Label>
+          <Textarea
+            id="notes"
+            value={invoiceData.notes}
+            onChange={(e) => onUpdate({ notes: e.target.value })}
+            placeholder="Thank you for your business!"
+            rows={4}
+          />
         </div>
       </Card>
     </div>
