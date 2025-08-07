@@ -52,7 +52,7 @@ serve(async (req) => {
 
     console.log(`Processing file: ${fileName} of type: ${fileType} for user: ${userId}`);
 
-    // Create file record in database
+    // Create file record in database using service role client
     const { data: uploadedFile, error: fileError } = await supabase
       .from('uploaded_files')
       .insert({
@@ -67,8 +67,17 @@ serve(async (req) => {
 
     if (fileError) {
       console.error('Error creating file record:', fileError);
-      throw new Error('Failed to create file record');
+      console.error('Insert data was:', {
+        user_id: userId,
+        filename: fileName,
+        file_type: fileType,
+        file_size: Math.round(fileContent.length * 3/4),
+        status: 'processing'
+      });
+      throw new Error(`Failed to create file record: ${fileError.message}`);
     }
+
+    console.log('File record created successfully:', uploadedFile.id);
 
     let extractedText = '';
 
