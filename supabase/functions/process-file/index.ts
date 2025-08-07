@@ -57,11 +57,10 @@ serve(async (req) => {
       .from('uploaded_files')
       .insert({
         user_id: userId,
-        file_name: fileName,
+        filename: fileName,
         file_type: fileType,
         file_size: Math.round(fileContent.length * 3/4), // Approximate size from base64
-        storage_path: `${userId}/${Date.now()}_${fileName}`,
-        extraction_status: 'processing'
+        status: 'processing'
       })
       .select()
       .single();
@@ -189,7 +188,7 @@ If information is missing, omit those fields. For quantities and rates, ensure t
     const { error: updateError } = await supabase
       .from('uploaded_files')
       .update({
-        extraction_status: 'completed',
+        status: 'completed',
         extracted_data: extractedData
       })
       .eq('id', uploadedFile.id);
